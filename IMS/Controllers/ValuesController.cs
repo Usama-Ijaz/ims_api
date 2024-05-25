@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using IMS.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Authorize]
@@ -6,9 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 public class HelloWorldController : ControllerBase
 {
+    private readonly IUserContextService _userContextService;
+    public HelloWorldController(IUserContextService userContextService) 
+    { 
+        _userContextService = userContextService;
+    }
     [HttpGet]
     public IActionResult Get()
     {
-        return Ok("Hello World");
+        return Ok(_userContextService.GetUserId());
     }
 }

@@ -19,7 +19,7 @@ namespace IMS.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] string loginRequest)
         {
-            object user = null; // get user from DB depending on login request
+            // get user from DB depending on login request
             int userId = 1;
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
@@ -27,7 +27,7 @@ namespace IMS.Controllers
 
             var Sectoken = new JwtSecurityToken(_config["Jwt:Issuer"],
               _config["Jwt:Issuer"],
-              claims: new List<Claim>() { new Claim("id", Convert.ToString(userId)) },
+              claims: new List<Claim>() { new Claim("UserId", Convert.ToString(userId)) },
               expires: DateTime.Now.AddMinutes(120),
               signingCredentials: credentials);
 
