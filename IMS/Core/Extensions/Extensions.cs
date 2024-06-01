@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using IMS.Core.Services;
+using IMS.Repositories.User;
+using IMS.Services.Login;
+using IMS.Services.User;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -25,6 +29,15 @@ namespace IMS.Core.Extensions
                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey!))
                  };
              });
+
+            return builder;
+        }
+        public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddScoped<IUserContextService, UserContextService>();
+            builder.Services.AddScoped<ILoginService, LoginService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
 
             return builder;
         }
