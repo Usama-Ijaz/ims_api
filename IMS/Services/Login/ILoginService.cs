@@ -2,6 +2,6 @@
 {
     public interface ILoginService
     {
-        Task<string> GenerateJwtToken(int userId); 
+        Task<string> GenerateJwtToken(IMS.Models.User.User user); 
     }
 }

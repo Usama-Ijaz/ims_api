@@ -4,6 +4,7 @@ using IMS.Services.Login;
 using IMS.Services.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using System.Text;
 
 namespace IMS.Core.Extensions
@@ -29,6 +30,13 @@ namespace IMS.Core.Extensions
                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey!))
                  };
              });
+
+            return builder;
+        }
+        public static WebApplicationBuilder AddPostGreSqlDbConnection(this WebApplicationBuilder builder)
+        {
+            var connectionString = builder.Configuration.GetConnectionString("PostgreDB");
+            builder.Services.AddScoped((provider) => new NpgsqlConnection(string.Format(connectionString!, "postgres", "postgres", "postgres")));
 
             return builder;
         }
