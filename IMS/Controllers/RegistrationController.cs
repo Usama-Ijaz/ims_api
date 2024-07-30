@@ -7,24 +7,24 @@ namespace IMS.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class LoginController : ControllerBase
+    public class RegistrationController : ControllerBase
     {
         private readonly ILoginService _loginService;
         private readonly IUserService _userService;
-        
-        public LoginController(ILoginService loginService, IUserService userService)
+
+        public RegistrationController(ILoginService loginService, IUserService userService)
         {
             _loginService = loginService;
             _userService = userService;
         }
-        [Route("login")]
+        [Route("register")]
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] UserLogin user)
+        public async Task<IActionResult> Post([FromBody] UserRegister userRegister)
         {
-            int userId = await _userService.ValidateUser(user);
+            int userId = await _userService.RegisterUser(userRegister);
             if (userId <= 0)
             {
-                return BadRequest("Invalid Credentials");
+                return BadRequest("User with email already exists");
             }
             var token = await _loginService.GenerateJwtToken(userId);
             return Ok(token);

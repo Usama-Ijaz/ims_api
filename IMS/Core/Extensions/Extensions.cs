@@ -43,6 +43,7 @@ namespace IMS.Core.Extensions
         public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
         {
             builder.Services.AddScoped<IUserContextService, UserContextService>();
+            builder.Services.AddTransient<IHashingService, HashingService>();
             builder.Services.AddScoped<ILoginService, LoginService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();

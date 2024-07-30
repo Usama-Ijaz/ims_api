@@ -12,15 +12,14 @@ namespace IMS.Services.Login
         {
             _config = config;
         }
-        public async Task<string> GenerateJwtToken(IMS.Models.User.User user)
+        public async Task<string> GenerateJwtToken(int userId)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var Sectoken = new JwtSecurityToken(_config["Jwt:Issuer"],
               _config["Jwt:Issuer"],
-              claims: new List<Claim>() { new Claim("UserId", Convert.ToString(user.UserId)), 
-                  new Claim("UserName", Convert.ToString(user.UserName)) },
+              claims: new List<Claim>() { new Claim("UserId", Convert.ToString(userId)) },
               expires: DateTime.Now.AddMinutes(120),
               signingCredentials: credentials);
 

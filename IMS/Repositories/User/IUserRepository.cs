@@ -1,7 +1,11 @@
-﻿namespace IMS.Repositories.User
+﻿using IMS.Models;
+using IMS.Models.User;
+
+namespace IMS.Repositories.User
 {
     public interface IUserRepository
     {
-        Task<int> ValidateUser(IMS.Models.User.User user);
+        Task<UserModel> ValidateUser(UserLogin userLogin);
+        Task<int> RegisterUser(UserRegister userRegister, HashedPassword hashedPassword);
     }
 }
