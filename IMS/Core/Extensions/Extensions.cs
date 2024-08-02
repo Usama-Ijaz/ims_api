@@ -1,5 +1,7 @@
 ﻿using IMS.Core.Services;
+using IMS.Repositories.Email;
 using IMS.Repositories.User;
+using IMS.Services.Email;
 using IMS.Services.Login;
 using IMS.Services.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -47,6 +49,8 @@ namespace IMS.Core.Extensions
             builder.Services.AddScoped<ILoginService, LoginService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IEmailRepository, EmailRepository>();
 
             return builder;
         }

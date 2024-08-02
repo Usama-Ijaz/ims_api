@@ -1,0 +1,20 @@
+﻿CREATE TABLE Users (
+	UserId SERIAL NOT NULL PRIMARY KEY,
+	Email VARCHAR(255),
+	PasswordHash VARCHAR(1000),
+	PasswordSalt VARCHAR(1000),
+	Address1 VARCHAR(1000),
+	Address2 VARCHAR(1000),
+	City VARCHAR(255),
+	Country VARCHAR(255),
+	image TEXT,
+	DDate timestamp default (now() at time zone 'utc')
+);
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE OtpGenerated (
+	OtpId SERIAL NOT NULL PRIMARY KEY,
+	Otp VARCHAR(50),
+	UserId INT,
+	DDate timestamp default (now() at time zone 'utc')
+);
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

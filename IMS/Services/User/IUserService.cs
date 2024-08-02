@@ -6,5 +6,6 @@ namespace IMS.Services.User
     {
         Task<int> ValidateUser(UserLogin userLogin);
         Task<int> RegisterUser(UserRegister userRegister);
+        Task<int> VerifyOtp(string otp);
     }
 }

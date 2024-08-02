@@ -29,5 +29,9 @@ namespace IMS.Services.User
             var hashedPassword = _hashingService.HashPassword(userRegister.Password);
             return await _userRepository.RegisterUser(userRegister, hashedPassword);
         }
+        public async Task<int> VerifyOtp(string otp)
+        {
+            return await _userRepository.VerifyOtp(otp);
+        }
     }
 }

@@ -1,15 +1,18 @@
 ﻿using IMS.Models.User;
 using Npgsql;
 using IMS.Models;
+using IMS.Core.Services;
 
 namespace IMS.Repositories.User
 {
     public class UserRepository : IUserRepository
     {
         private readonly NpgsqlConnection _connection;
-        public UserRepository(NpgsqlConnection connection)
+        private readonly IUserContextService _userContextService;
+        public UserRepository(NpgsqlConnection connection, IUserContextService userContextService)
         {
             _connection = connection;
+            _userContextService = userContextService;
         }
         public async Task<UserModel> ValidateUser(UserLogin userLogin)
         {
@@ -66,5 +69,33 @@ namespace IMS.Repositories.User
             }
             return userId;
         }
+        public async Task<int> VerifyOtp(string otp)
+        {
+            int userId = _userContextService.GetUserId();
+            int valid = -1;
+            try
+            {
+                await _connection.OpenAsync();
+                using var cmd = new NpgsqlCommand("SELECT fn_verify_otp(@UserId, @Otp)", _connection);
+                cmd.Parameters.AddWithValue("UserId", NpgsqlTypes.NpgsqlDbType.Integer, userId);
+                cmd.Parameters.AddWithValue("Otp", NpgsqlTypes.NpgsqlDbType.Varchar, otp);
+
+                var result = await cmd.ExecuteScalarAsync();
+                if (result != null)
+                {
+                    int.TryParse(Convert.ToString(result), out valid);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+            return valid;
+        }
+
     }
 }

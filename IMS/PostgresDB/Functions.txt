@@ -1,0 +1,86 @@
+﻿CREATE OR REPLACE FUNCTION fn_get_user(i_email VARCHAR)
+RETURNS TABLE(userid INT, passwordHash VARCHAR, passwordsalt VARCHAR)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT Users.userid, Users.passwordHash, Users.passwordsalt 
+    FROM Users 
+    WHERE Email = i_email;
+END;
+$$;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_insert_user(
+    i_email VARCHAR,
+    i_password VARCHAR,
+    i_passwordsalt VARCHAR
+)
+RETURNS INTEGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    new_userid INT;
+    existing_userid INT;
+BEGIN
+    SELECT Users.UserId INTO existing_userid FROM Users WHERE Email = i_email;
+
+    IF existing_userid IS NOT NULL THEN
+        RETURN -1;
+    END IF;
+
+    INSERT INTO Users (Email, PasswordHash, PasswordSalt)
+    VALUES (i_email, i_password, i_passwordsalt)
+    RETURNING UserId INTO new_userid;
+    
+    RETURN new_userid;
+END;
+$$;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_insert_otp(
+    i_userid INT,
+    i_otp VARCHAR
+)
+RETURNS INTEGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    new_otpid INT;
+BEGIN
+
+    INSERT INTO OtpGenerated (Otp, UserId)
+    VALUES (i_otp, i_userid)
+    RETURNING OtpId INTO new_otpid;
+    
+    RETURN new_otpid;
+END;
+$$;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_verify_otp(
+    i_userid INT,
+    i_otp VARCHAR
+)
+RETURNS INTEGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    otpid_status INT;
+	latest_ddate TIMESTAMP;
+BEGIN
+
+    SELECT DDate INTO latest_ddate
+    FROM otpgenerated
+    WHERE UserId = i_userid AND otp = i_otp
+    ORDER BY DDate DESC
+    LIMIT 1;
+	
+	IF latest_ddate IS NULL THEN
+		RETURN -1;
+    ELSEIF latest_ddate < (NOW() AT TIME ZONE 'utc' - INTERVAL '2 minutes') THEN
+        RETURN -2;
+    ELSE
+        RETURN 1;
+    END IF;
+    
+END;
+$$;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
