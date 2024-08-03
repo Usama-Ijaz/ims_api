@@ -1,7 +1,9 @@
-﻿namespace IMS.Services.Login
+﻿using IMS.Models;
+
+namespace IMS.Services.Login
 {
     public interface ILoginService
     {
-        Task<string> GenerateJwtToken(int userId); 
+        Task<JwtToken> GenerateJwtToken(int userId); 
     }
 }

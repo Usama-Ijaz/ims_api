@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using IMS.Models;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -12,7 +13,7 @@ namespace IMS.Services.Login
         {
             _config = config;
         }
-        public async Task<string> GenerateJwtToken(int userId)
+        public async Task<JwtToken> GenerateJwtToken(int userId)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -23,7 +24,11 @@ namespace IMS.Services.Login
               expires: DateTime.Now.AddMinutes(120),
               signingCredentials: credentials);
 
-            return new JwtSecurityTokenHandler().WriteToken(Sectoken);
+            var jwtToken = new JwtToken
+            {
+                token = new JwtSecurityTokenHandler().WriteToken(Sectoken)
+            };
+            return jwtToken;
         }
     }
 }
