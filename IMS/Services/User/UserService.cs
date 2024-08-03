@@ -41,5 +41,13 @@ namespace IMS.Services.User
         {
             return await _userRepository.UpdateImage(userImage);
         }
+        public async Task<UserModel> GetUserProfile()
+        {
+            return await _userRepository.GetUserProfile();
+        }
+        public async Task<string> GetUserProfileStatus()
+        {
+            return await _userRepository.GetUserProfileStatus();
+        }
     }
 }

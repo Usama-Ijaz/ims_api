@@ -10,5 +10,7 @@ namespace IMS.Repositories.User
         Task<int> VerifyOtp(string otp);
         Task<bool> UpdateAddress(UserAddress userAddress);
         Task<bool> UpdateImage(UserImage userImage);
+        Task<UserModel> GetUserProfile();
+        Task<string> GetUserProfileStatus();
     }
 }

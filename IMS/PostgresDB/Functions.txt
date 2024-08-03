@@ -28,8 +28,8 @@ BEGIN
         RETURN -1;
     END IF;
 
-    INSERT INTO Users (Email, PasswordHash, PasswordSalt)
-    VALUES (i_email, i_password, i_passwordsalt)
+    INSERT INTO Users (Email, PasswordHash, PasswordSalt, ProfileStatus)
+    VALUES (i_email, i_password, i_passwordsalt, 'Email registered')
     RETURNING UserId INTO new_userid;
     
     RETURN new_userid;
@@ -78,6 +78,10 @@ BEGIN
     ELSEIF latest_ddate < (NOW() AT TIME ZONE 'utc' - INTERVAL '2 minutes') THEN
         RETURN -2;
     ELSE
+        UPDATE Users
+        SET ProfileStatus = 'OTP verified'
+        WHERE UserId = i_userid;
+        
         RETURN 1;
     END IF;
     
@@ -99,7 +103,8 @@ BEGIN
     SET Address1 = p_address1,
         Address2 = p_address2,
         City = p_city,
-        Country = p_country
+        Country = p_country,
+        ProfileStatus = 'Address added'
     WHERE UserId = p_user_id;
 
     IF FOUND THEN
@@ -119,7 +124,8 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
     UPDATE Users
-    SET Image = p_image
+    SET Image = p_image,
+    ProfileStatus = 'Image added'
     WHERE UserId = p_user_id;
 
     IF FOUND THEN
@@ -130,3 +136,35 @@ BEGIN
 END;
 $$;
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_get_user_profile(i_userId INT)
+RETURNS TABLE(Email VARCHAR, Address1 VARCHAR, Address2 VARCHAR, City VARCHAR, Country VARCHAR, image TEXT, ProfileStatus VARCHAR)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT Users.email, Users.address1, Users.address2, Users.city, Users.country, Users.image, Users.profilestatus 
+    FROM Users 
+    WHERE Users.userid = i_userId;
+END;
+$$;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_get_user_profile_status(
+    i_userid INT
+)
+RETURNS VARCHAR
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    profile_status VARCHAR;
+BEGIN
+    SELECT Users.profilestatus INTO profile_status
+    FROM Users
+    WHERE UserId = i_userid;
+	
+	IF profile_status IS NULL THEN
+		RETURN 'Unknown user';
+    ELSE
+        RETURN profile_status;
+    END IF;
+END;
+$$;

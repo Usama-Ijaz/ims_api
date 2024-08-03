@@ -153,5 +153,64 @@ namespace IMS.Repositories.User
             }
             return updated;
         }
+        public async Task<UserModel> GetUserProfile()
+        {
+            int userId = _userContextService.GetUserId();
+            var user = new UserModel();
+            try
+            {
+                await _connection.OpenAsync();
+                using var cmd = new NpgsqlCommand("SELECT fn_get_user_profile(@UserId)", _connection);
+                cmd.Parameters.AddWithValue("UserId", NpgsqlTypes.NpgsqlDbType.Integer, userId);
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    user.UserId = userId;
+                    user.Email = Convert.ToString(reader["email"]);
+                    user.Address.Address1 = Convert.ToString(reader["address1"]);
+                    user.Address.Address2 = Convert.ToString(reader["address2"]);
+                    user.Address.City = Convert.ToString(reader["city"]);
+                    user.Address.Country = Convert.ToString(reader["country"]);
+                    user.UserImage.ImageBase64 = Convert.ToString(reader["image"]);
+                    user.ProfileStatus = Convert.ToString(reader["profilestatus"]);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+            return user;
+        }
+        public async Task<string> GetUserProfileStatus()
+        {
+            int userId = _userContextService.GetUserId();
+            string status = "";
+            try
+            {
+                await _connection.OpenAsync();
+                using var cmd = new NpgsqlCommand("SELECT fn_get_user_profile_status(@UserId)", _connection);
+                cmd.Parameters.AddWithValue("UserId", NpgsqlTypes.NpgsqlDbType.Integer, userId);
+
+                var result = await cmd.ExecuteScalarAsync();
+                if (result != null)
+                {
+                    status = Convert.ToString(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+            return status;
+        }
     }
 }
