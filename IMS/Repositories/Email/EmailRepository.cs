@@ -14,9 +14,12 @@ namespace IMS.Repositories.Email
             _connection = connection;
             _userContextService = userContextService;
         }
-        public async Task<int> InsertOtp(string otp)
+        public async Task<int> InsertOtp(string otp, int userId)
         {
-            int userId = _userContextService.GetUserId();
+            if (userId == 0) 
+            {
+                userId = _userContextService.GetUserId();
+            }
             int pkId = 0;
             try
             {

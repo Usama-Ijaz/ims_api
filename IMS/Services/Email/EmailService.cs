@@ -15,7 +15,7 @@ namespace IMS.Services.Email
             _config = config;
 
         }
-        public async Task<int> SendEmail(string email)
+        public async Task<int> SendEmail(string email, int userId)
         {
             bool success = true;
             int otpId = 0;
@@ -48,7 +48,7 @@ namespace IMS.Services.Email
             }
             if (success)
             {
-                otpId = await _emailRepository.InsertOtp(otp);
+                otpId = await _emailRepository.InsertOtp(otp, userId);
             }
             return otpId;
         }

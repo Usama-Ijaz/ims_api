@@ -2,6 +2,6 @@
 {
     public interface IEmailRepository
     {
-        Task<int> InsertOtp(string otp);
+        Task<int> InsertOtp(string otp, int userId);
     }
 }

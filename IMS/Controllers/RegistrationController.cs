@@ -31,7 +31,7 @@ namespace IMS.Controllers
             {
                 return BadRequest(new GenericResponse() { ResponseMessage = "User with email already exists" });
             }
-            int otpId = await _emailService.SendEmail(userRegister.Email);
+            int otpId = await _emailService.SendEmail(userRegister.Email, userId);
             if (otpId <= 0)
             {
                 return StatusCode(500, new GenericResponse() { ResponseMessage = "Error sending email" });
@@ -44,7 +44,7 @@ namespace IMS.Controllers
         [HttpPost]
         public async Task<IActionResult> SendEmail([FromBody] string email)
         {
-            int otpId = await _emailService.SendEmail(email);
+            int otpId = await _emailService.SendEmail(email, 0);
             if (otpId <= 0)
             {
                 return StatusCode(500, new GenericResponse() { ResponseMessage = "Error sending email" });
