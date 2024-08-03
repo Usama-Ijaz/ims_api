@@ -33,5 +33,13 @@ namespace IMS.Services.User
         {
             return await _userRepository.VerifyOtp(otp);
         }
+        public async Task<bool> UpdateAddress(UserAddress userAddress)
+        {
+            return await _userRepository.UpdateAddress(userAddress);
+        }
+        public async Task<bool> UpdateImage(UserImage userImage)
+        {
+            return await _userRepository.UpdateImage(userImage);
+        }
     }
 }

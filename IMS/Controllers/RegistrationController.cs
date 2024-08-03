@@ -4,6 +4,7 @@ using IMS.Services.Login;
 using IMS.Services.User;
 using IMS.Services.Email;
 using Microsoft.AspNetCore.Authorization;
+using IMS.Models;
 
 namespace IMS.Controllers
 {
@@ -28,10 +29,15 @@ namespace IMS.Controllers
             int userId = await _userService.RegisterUser(userRegister);
             if (userId <= 0)
             {
-                return BadRequest("User with email already exists");
+                return BadRequest(new GenericResponse() { ResponseMessage = "User with email already exists" });
+            }
+            int otpId = await _emailService.SendEmail(userRegister.Email);
+            if (otpId <= 0)
+            {
+                return StatusCode(500, new GenericResponse() { ResponseMessage = "Error sending email" });
             }
             var token = await _loginService.GenerateJwtToken(userId);
-            return Ok(token);
+            return Ok(new GenericResponse() { ResponseMessage = "Token generated successfully", ResponseContent = token });
         }
         [Authorize]
         [Route("email/send")]
@@ -41,7 +47,7 @@ namespace IMS.Controllers
             int otpId = await _emailService.SendEmail(email);
             if (otpId <= 0)
             {
-                return Ok("Error sending email");
+                return StatusCode(500, new GenericResponse() { ResponseMessage = "Error sending email" });
             }
             return Ok(otpId);
         }
@@ -51,9 +57,27 @@ namespace IMS.Controllers
         public async Task<IActionResult> VerifyOtp([FromBody] string otp)
         {
             int valid = await _userService.VerifyOtp(otp);
-            if (valid == -1) return BadRequest("OTP Invalid");
-            else if (valid == -2) return BadRequest("OTP expired");
-            return Ok("OTP Verified");
+            if (valid == -1) return BadRequest(new GenericResponse() { ResponseMessage = "OTP Invalid" });
+            else if (valid == -2) return BadRequest(new GenericResponse() { ResponseMessage = "OTP expired" });
+            return Ok(new GenericResponse() { ResponseMessage = "OTP Verified" });
+        }
+        [Authorize]
+        [Route("address/update")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateAddress([FromBody] UserAddress userAddress)
+        {
+            bool updated = await _userService.UpdateAddress(userAddress);
+            if (!updated) return StatusCode(500, new GenericResponse() { ResponseMessage = "Error while updating user address" });
+            return Ok(new GenericResponse() { ResponseMessage = "User address updated" });
+        }
+        [Authorize]
+        [Route("image/update")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateImage([FromBody] UserImage userImage)
+        {
+            bool updated = await _userService.UpdateImage(userImage);
+            if (!updated) return StatusCode(500, new GenericResponse() { ResponseMessage = "Error while updating user image" });
+            return Ok(new GenericResponse() { ResponseMessage = "User image updated" });
         }
     }
 }

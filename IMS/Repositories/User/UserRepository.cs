@@ -96,6 +96,62 @@ namespace IMS.Repositories.User
             }
             return valid;
         }
+        public async Task<bool> UpdateAddress(UserAddress userAddress)
+        {
+            int userId = _userContextService.GetUserId();
+            bool updated = false;
+            try
+            {
+                await _connection.OpenAsync();
+                using var cmd = new NpgsqlCommand("SELECT fn_update_user_address(@UserId, @Address1, @Address2, @City, @Country)", _connection);
+                cmd.Parameters.AddWithValue("UserId", NpgsqlTypes.NpgsqlDbType.Integer, userId);
+                cmd.Parameters.AddWithValue("Address1", NpgsqlTypes.NpgsqlDbType.Varchar, userAddress.Address1);
+                cmd.Parameters.AddWithValue("Address2", NpgsqlTypes.NpgsqlDbType.Varchar, userAddress.Address2);
+                cmd.Parameters.AddWithValue("City", NpgsqlTypes.NpgsqlDbType.Varchar, userAddress.City);
+                cmd.Parameters.AddWithValue("Country", NpgsqlTypes.NpgsqlDbType.Varchar, userAddress.Country);
 
+                var result = await cmd.ExecuteScalarAsync();
+                if (result != null)
+                {
+                    bool.TryParse(Convert.ToString(result), out updated);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+            return updated;
+        }
+        public async Task<bool> UpdateImage(UserImage userImage)
+        {
+            int userId = _userContextService.GetUserId();
+            bool updated = false;
+            try
+            {
+                await _connection.OpenAsync();
+                using var cmd = new NpgsqlCommand("SELECT fn_update_user_image(@UserId, @Image)", _connection);
+                cmd.Parameters.AddWithValue("UserId", NpgsqlTypes.NpgsqlDbType.Integer, userId);
+                cmd.Parameters.AddWithValue("Image", NpgsqlTypes.NpgsqlDbType.Text, userImage.ImageBase64);
+
+                var result = await cmd.ExecuteScalarAsync();
+                if (result != null)
+                {
+                    bool.TryParse(Convert.ToString(result), out updated);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+            return updated;
+        }
     }
 }

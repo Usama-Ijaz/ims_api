@@ -84,3 +84,49 @@ BEGIN
 END;
 $$;
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_update_user_address(
+    p_user_id INT,
+    p_address1 VARCHAR,
+    p_address2 VARCHAR,
+    p_city VARCHAR,
+    p_country VARCHAR
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE Users
+    SET Address1 = p_address1,
+        Address2 = p_address2,
+        City = p_city,
+        Country = p_country
+    WHERE UserId = p_user_id;
+
+    IF FOUND THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    END IF;
+END;
+$$;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_update_user_image(
+    p_user_id INT,
+	p_image TEXT
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE Users
+    SET Image = p_image
+    WHERE UserId = p_user_id;
+
+    IF FOUND THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    END IF;
+END;
+$$;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
