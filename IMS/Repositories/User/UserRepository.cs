@@ -160,7 +160,7 @@ namespace IMS.Repositories.User
             try
             {
                 await _connection.OpenAsync();
-                using var cmd = new NpgsqlCommand("SELECT fn_get_user_profile(@UserId)", _connection);
+                using var cmd = new NpgsqlCommand("SELECT * from fn_get_user_profile(@UserId)", _connection);
                 cmd.Parameters.AddWithValue("UserId", NpgsqlTypes.NpgsqlDbType.Integer, userId);
 
                 using var reader = await cmd.ExecuteReaderAsync();
