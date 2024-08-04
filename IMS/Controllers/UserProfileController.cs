@@ -3,6 +3,7 @@ using IMS.Models;
 using IMS.Services.Login;
 using IMS.Services.User;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IMS.Controllers
 {
@@ -16,6 +17,7 @@ namespace IMS.Controllers
         {
             _userService = userService;
         }
+        [Authorize]
         [Route("profile")]
         [HttpGet]
         public async Task<IActionResult> GetUserProfile()
@@ -27,6 +29,7 @@ namespace IMS.Controllers
             }
             return Ok(new GenericResponse() { ResponseContent = userModel });
         }
+        [Authorize]
         [Route("profile-status")]
         [HttpGet]
         public async Task<IActionResult> GetUserProfileStatus()
