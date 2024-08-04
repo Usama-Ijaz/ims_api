@@ -184,6 +184,7 @@ namespace IMS.Repositories.User
             {
                 await _connection.CloseAsync();
             }
+            user.UserPreferences = await GetUserPreferences();
             return user;
         }
         public async Task<string> GetUserProfileStatus()
@@ -212,5 +213,108 @@ namespace IMS.Repositories.User
             }
             return status;
         }
+        public async Task<List<Preference>> GetAllPreferences()
+        {
+            var preferences = new List<Preference>();
+            try
+            {
+                await _connection.OpenAsync();
+                using var cmd = new NpgsqlCommand("SELECT * from fn_get_preferences()", _connection);
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    var preference = new Preference
+                    {
+                        PreferenceId = int.Parse(Convert.ToString(reader["PreferenceId"])),
+                        PreferenceName = Convert.ToString(reader["PreferenceName"])
+                    };
+                    preferences.Add(preference);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+            return preferences;
+        }
+        public async Task<List<UserPreference>> GetUserPreferences()
+        {
+            int userId = _userContextService.GetUserId();
+            var userPreferences = new List<UserPreference>();
+            try
+            {
+                await _connection.OpenAsync();
+                using var cmd = new NpgsqlCommand("SELECT * from fn_get_user_preferences(@UserId)", _connection);
+                cmd.Parameters.AddWithValue("UserId", NpgsqlTypes.NpgsqlDbType.Integer, userId);
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    var preference = new UserPreference
+                    {
+                        PreferenceId = int.Parse(Convert.ToString(reader["PreferenceId"])),
+                        PreferenceName = Convert.ToString(reader["PreferenceName"]),
+                        PreferenceValue = bool.Parse(Convert.ToString(reader["PreferenceValue"]))
+                    };
+                    userPreferences.Add(preference);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+            return userPreferences;
+        }
+        public async Task<bool> UpdateUserPreferences(List<UpdateUserPreference> userPreferences)
+        {
+            bool updated = true;
+            foreach (var userPreference in userPreferences) 
+            {
+                if (updated)
+                {
+                    updated = await UpdateUserPreference(userPreference);
+                }
+            }
+            return updated;
+        }
+        private async Task<bool> UpdateUserPreference(UpdateUserPreference userPreference)
+        {
+            int userId = _userContextService.GetUserId();
+            bool updated = true;
+            try
+            {
+                await _connection.OpenAsync();
+                using var cmd = new NpgsqlCommand("SELECT fn_update_user_preference(@UserId, @Id, @Value)", _connection);
+                cmd.Parameters.AddWithValue("UserId", NpgsqlTypes.NpgsqlDbType.Integer, userId);
+                cmd.Parameters.AddWithValue("Id", NpgsqlTypes.NpgsqlDbType.Integer, userPreference.PreferenceId);
+                cmd.Parameters.AddWithValue("Value", NpgsqlTypes.NpgsqlDbType.Boolean, userPreference.PreferenceValue);
+
+                var result = await cmd.ExecuteScalarAsync();
+                if (result != null)
+                {
+                    //bool.TryParse(Convert.ToString(result), out updated);
+                }
+            }
+            catch (Exception ex)
+            {
+                updated = false;
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+            return updated;
+        }
+
     }
 }

@@ -12,5 +12,8 @@ namespace IMS.Repositories.User
         Task<bool> UpdateImage(UserImage userImage);
         Task<UserModel> GetUserProfile();
         Task<string> GetUserProfileStatus();
+        Task<List<Preference>> GetAllPreferences();
+        Task<bool> UpdateUserPreferences(List<UpdateUserPreference> userPreferences);
+
     }
 }

@@ -79,5 +79,23 @@ namespace IMS.Controllers
             if (!updated) return StatusCode(500, new GenericResponse() { ResponseMessage = "Error while updating user image" });
             return Ok(new GenericResponse() { ResponseMessage = "User image updated" });
         }
+        [Authorize]
+        [Route("preferences/all")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllPreferences()
+        {
+            var preferences = await _userService.GetAllPreferences();
+            if (preferences == null) return StatusCode(500, new GenericResponse() { ResponseMessage = "Error while fetching all preferences" });
+            return Ok(new GenericResponse() { ResponseMessage = "Success", ResponseContent = preferences });
+        }
+        [Authorize]
+        [Route("preferences/update")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserPreferences([FromBody] List<UpdateUserPreference> userPreferences)
+        {
+            bool updated = await _userService.UpdateUserPreferences(userPreferences);
+            if (!updated) return StatusCode(500, new GenericResponse() { ResponseMessage = "Error while updating user preferences" });
+            return Ok(new GenericResponse() { ResponseMessage = "User preferences updated" });
+        }
     }
 }

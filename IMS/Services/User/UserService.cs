@@ -1,6 +1,7 @@
 ﻿using IMS.Core.Services;
 using IMS.Models.User;
 using IMS.Repositories.User;
+using System.Collections.Generic;
 
 namespace IMS.Services.User
 {
@@ -48,6 +49,14 @@ namespace IMS.Services.User
         public async Task<string> GetUserProfileStatus()
         {
             return await _userRepository.GetUserProfileStatus();
+        }
+        public async Task<List<Preference>> GetAllPreferences()
+        {
+            return await _userRepository.GetAllPreferences();
+        }
+        public async Task<bool> UpdateUserPreferences(List<UpdateUserPreference> userPreferences)
+        {
+            return await _userRepository.UpdateUserPreferences(userPreferences);
         }
     }
 }

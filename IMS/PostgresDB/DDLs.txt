@@ -19,3 +19,20 @@ CREATE TABLE OtpGenerated (
 	DDate timestamp default (now() at time zone 'utc')
 );
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE Preferences (
+	PreferenceId SERIAL NOT NULL PRIMARY KEY,
+	PreferenceName VARCHAR,
+	DDate timestamp default (now() at time zone 'utc')
+);
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE UserPreferences (
+	UserPreferenceId SERIAL NOT NULL PRIMARY KEY,
+	UserId INT,
+	PreferenceId INT,
+	PreferenceValue Bool,
+	DDate timestamp default (now() at time zone 'utc')
+);
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ALTER TABLE UserPreferences
+ADD CONSTRAINT unique_user_preference UNIQUE (UserId, PreferenceId);
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

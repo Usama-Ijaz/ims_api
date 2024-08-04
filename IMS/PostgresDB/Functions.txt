@@ -168,3 +168,50 @@ BEGIN
     END IF;
 END;
 $$;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_get_preferences()
+RETURNS TABLE(PreferenceId INT, PreferenceName VARCHAR)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT Preferences.PreferenceId, Preferences.PreferenceName
+    FROM Preferences;
+END;
+$$;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_get_user_preferences(p_user_id INT)
+RETURNS TABLE(PreferenceId INT, PreferenceValue BOOL, PreferenceName VARCHAR)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT up.PreferenceId, up.PreferenceValue, p.PreferenceName
+    FROM UserPreferences up
+    JOIN Preferences p ON up.PreferenceId = p.PreferenceId
+    WHERE up.UserId = p_user_id;
+END;
+$$;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_update_user_preference(
+    p_user_id INT,
+    p_preference_id INT,
+    p_preference_value BOOL
+)
+RETURNS VOID
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO UserPreferences (UserId, PreferenceId, PreferenceValue, DDate)
+    VALUES (p_user_id, p_preference_id, p_preference_value, NOW() AT TIME ZONE 'utc')
+    ON CONFLICT (UserId, PreferenceId) DO UPDATE
+    SET PreferenceValue = EXCLUDED.PreferenceValue,
+        DDate = NOW() AT TIME ZONE 'utc';
+		
+	UPDATE Users
+	SET ProfileStatus = 'Preferences added'
+	WHERE UserId = p_user_id;
+END;
+$$;
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
