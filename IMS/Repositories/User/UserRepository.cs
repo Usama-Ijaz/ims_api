@@ -103,13 +103,13 @@ namespace IMS.Repositories.User
             try
             {
                 await _connection.OpenAsync();
-                using var cmd = new NpgsqlCommand("SELECT fn_update_user_address(@UserId, @Address1, @Address2, @City, @Dob)", _connection);
+                using var cmd = new NpgsqlCommand("SELECT fn_update_user_address(@UserId, @Address1, @Address2, @City, @Country, @Dob)", _connection);
                 cmd.Parameters.AddWithValue("UserId", NpgsqlTypes.NpgsqlDbType.Integer, userId);
                 cmd.Parameters.AddWithValue("Address1", NpgsqlTypes.NpgsqlDbType.Varchar, userAddress.Address1);
                 cmd.Parameters.AddWithValue("Address2", NpgsqlTypes.NpgsqlDbType.Varchar, userAddress.Address2);
                 cmd.Parameters.AddWithValue("City", NpgsqlTypes.NpgsqlDbType.Varchar, userAddress.City);
                 cmd.Parameters.AddWithValue("Country", NpgsqlTypes.NpgsqlDbType.Varchar, userAddress.Country);
-                cmd.Parameters.AddWithValue("Dob", NpgsqlTypes.NpgsqlDbType.Date, userAddress.Dob);
+                cmd.Parameters.AddWithValue("Dob", NpgsqlTypes.NpgsqlDbType.Date, userAddress.Dob.ToDateTime(new TimeOnly(0, 0)));
 
                 var result = await cmd.ExecuteScalarAsync();
                 if (result != null)
@@ -178,8 +178,8 @@ namespace IMS.Repositories.User
                     user.ProfileCompletionStatus = bool.Parse(Convert.ToString(reader["profilecompletionstatus"]));
                     user.OtpVerified = bool.Parse(Convert.ToString(reader["otpverified"]));
                     user.CardDetailsEntered = bool.Parse(Convert.ToString(reader["carddetailsentered"]));
-                    _ = DateOnly.TryParse(Convert.ToString(reader["dob"]), out DateOnly dob);
-                    user.Dob = dob;
+                    _ = DateTime.TryParse(Convert.ToString(reader["dob"]), out DateTime dob);
+                    user.Dob = DateOnly.FromDateTime(dob);
                 }
             }
             catch (Exception ex)
