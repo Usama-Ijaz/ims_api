@@ -13,5 +13,6 @@ namespace IMS.Services.User
         Task<string> GetUserProfileStatus();
         Task<List<Preference>> GetAllPreferences();
         Task<bool> UpdateUserPreferences(List<UpdateUserPreference> userPreferences);
+        Task<bool> UpdateCardAddedStatus();
     }
 }

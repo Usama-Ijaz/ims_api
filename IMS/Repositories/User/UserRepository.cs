@@ -103,12 +103,13 @@ namespace IMS.Repositories.User
             try
             {
                 await _connection.OpenAsync();
-                using var cmd = new NpgsqlCommand("SELECT fn_update_user_address(@UserId, @Address1, @Address2, @City, @Country)", _connection);
+                using var cmd = new NpgsqlCommand("SELECT fn_update_user_address(@UserId, @Address1, @Address2, @City, @Dob)", _connection);
                 cmd.Parameters.AddWithValue("UserId", NpgsqlTypes.NpgsqlDbType.Integer, userId);
                 cmd.Parameters.AddWithValue("Address1", NpgsqlTypes.NpgsqlDbType.Varchar, userAddress.Address1);
                 cmd.Parameters.AddWithValue("Address2", NpgsqlTypes.NpgsqlDbType.Varchar, userAddress.Address2);
                 cmd.Parameters.AddWithValue("City", NpgsqlTypes.NpgsqlDbType.Varchar, userAddress.City);
                 cmd.Parameters.AddWithValue("Country", NpgsqlTypes.NpgsqlDbType.Varchar, userAddress.Country);
+                cmd.Parameters.AddWithValue("Dob", NpgsqlTypes.NpgsqlDbType.Date, userAddress.Dob);
 
                 var result = await cmd.ExecuteScalarAsync();
                 if (result != null)
@@ -167,13 +168,18 @@ namespace IMS.Repositories.User
                 while (await reader.ReadAsync())
                 {
                     user.UserId = userId;
-                    user.Email = Convert.ToString(reader["email"]);
-                    user.Address.Address1 = Convert.ToString(reader["address1"]);
-                    user.Address.Address2 = Convert.ToString(reader["address2"]);
-                    user.Address.City = Convert.ToString(reader["city"]);
-                    user.Address.Country = Convert.ToString(reader["country"]);
-                    user.UserImage.ImageBase64 = Convert.ToString(reader["image"]);
-                    user.ProfileStatus = Convert.ToString(reader["profilestatus"]);
+                    user.Email = Convert.ToString(reader["email"]) ?? "";
+                    user.Address.Address1 = Convert.ToString(reader["address1"]) ?? "";
+                    user.Address.Address2 = Convert.ToString(reader["address2"]) ?? "";
+                    user.Address.City = Convert.ToString(reader["city"]) ?? "";
+                    user.Address.Country = Convert.ToString(reader["country"]) ?? "";
+                    user.UserImage.ImageBase64 = Convert.ToString(reader["image"]) ?? "";
+                    user.ProfileStatus = Convert.ToString(reader["profilestatus"]) ?? "";
+                    user.ProfileCompletionStatus = bool.Parse(Convert.ToString(reader["profilecompletionstatus"]));
+                    user.OtpVerified = bool.Parse(Convert.ToString(reader["otpverified"]));
+                    user.CardDetailsEntered = bool.Parse(Convert.ToString(reader["carddetailsentered"]));
+                    _ = DateOnly.TryParse(Convert.ToString(reader["dob"]), out DateOnly dob);
+                    user.Dob = dob;
                 }
             }
             catch (Exception ex)
@@ -307,6 +313,32 @@ namespace IMS.Repositories.User
             catch (Exception ex)
             {
                 updated = false;
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+            return updated;
+        }
+        public async Task<bool> UpdateCardAddedStatus()
+        {
+            int userId = _userContextService.GetUserId();
+            bool updated = false;
+            try
+            {
+                await _connection.OpenAsync();
+                using var cmd = new NpgsqlCommand("SELECT fn_update_user_card_status(@UserId)", _connection);
+                cmd.Parameters.AddWithValue("UserId", NpgsqlTypes.NpgsqlDbType.Integer, userId);
+
+                var result = await cmd.ExecuteScalarAsync();
+                if (result != null)
+                {
+                    bool.TryParse(Convert.ToString(result), out updated);
+                }
+            }
+            catch (Exception ex)
+            {
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
             finally

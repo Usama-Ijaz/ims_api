@@ -97,5 +97,14 @@ namespace IMS.Controllers
             if (!updated) return StatusCode(500, new GenericResponse() { ResponseMessage = "Error while updating user preferences" });
             return Ok(new GenericResponse() { ResponseMessage = "User preferences updated" });
         }
+        [Authorize]
+        [Route("card-status/update")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateCardAddedStatus()
+        {
+            bool updated = await _userService.UpdateCardAddedStatus();
+            if (!updated) return StatusCode(500, new GenericResponse() { ResponseMessage = "Error while updating user card status" });
+            return Ok(new GenericResponse() { ResponseMessage = "User card status updated" });
+        }
     }
 }

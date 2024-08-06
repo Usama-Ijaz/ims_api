@@ -6,5 +6,6 @@
         public string Address2 { get; set; }
         public string City { get; set; }
         public string Country { get; set; }
+        public DateOnly Dob { get; set; }
     }
 }

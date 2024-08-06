@@ -36,3 +36,9 @@ CREATE TABLE UserPreferences (
 ALTER TABLE UserPreferences
 ADD CONSTRAINT unique_user_preference UNIQUE (UserId, PreferenceId);
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ALTER TABLE Users
+ADD COLUMN OtpVerified BOOLEAN DEFAULT false,
+ADD COLUMN ProfileCompletionStatus BOOLEAN DEFAULT false,
+ADD COLUMN DOB DATE
+ADD COLUMN CardDetailsEntered BOOLEAN DEFAULT false;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

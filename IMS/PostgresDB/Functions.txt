@@ -79,7 +79,7 @@ BEGIN
         RETURN -2;
     ELSE
         UPDATE Users
-        SET ProfileStatus = 'OTP verified'
+        SET ProfileStatus = 'OTP verified', OtpVerified = true
         WHERE UserId = i_userid;
         
         RETURN 1;
@@ -93,7 +93,8 @@ CREATE OR REPLACE FUNCTION fn_update_user_address(
     p_address1 VARCHAR,
     p_address2 VARCHAR,
     p_city VARCHAR,
-    p_country VARCHAR
+    p_country VARCHAR,
+	p_dob Date
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql
@@ -104,6 +105,7 @@ BEGIN
         Address2 = p_address2,
         City = p_city,
         Country = p_country,
+		dob = p_dob,
         ProfileStatus = 'Address added'
     WHERE UserId = p_user_id;
 
@@ -137,12 +139,12 @@ END;
 $$;
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION fn_get_user_profile(i_userId INT)
-RETURNS TABLE(Email VARCHAR, Address1 VARCHAR, Address2 VARCHAR, City VARCHAR, Country VARCHAR, image TEXT, ProfileStatus VARCHAR)
+RETURNS TABLE(Email VARCHAR, Address1 VARCHAR, Address2 VARCHAR, City VARCHAR, Country VARCHAR, image TEXT, ProfileStatus VARCHAR, profilecompletionstatus bool, otpverified bool, carddetailsentered bool, dob Date)
 LANGUAGE plpgsql
 AS $$
 BEGIN
     RETURN QUERY 
-    SELECT Users.email, Users.address1, Users.address2, Users.city, Users.country, Users.image, Users.profilestatus 
+    SELECT Users.email, Users.address1, Users.address2, Users.city, Users.country, Users.image, Users.profilestatus, Users.profilecompletionstatus, Users.otpverified, Users.carddetailsentered, Users.dob 
     FROM Users 
     WHERE Users.userid = i_userId;
 END;
@@ -209,9 +211,29 @@ BEGIN
         DDate = NOW() AT TIME ZONE 'utc';
 		
 	UPDATE Users
-	SET ProfileStatus = 'Preferences added'
+	SET ProfileStatus = 'Preferences added', ProfileCompletionStatus = true
 	WHERE UserId = p_user_id;
 END;
 $$;
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_update_user_card_status(
+    p_user_id INT
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE Users
+    SET carddetailsentered = true,
+    ProfileStatus = 'Credit card added'
+    WHERE UserId = p_user_id;
+
+    IF FOUND THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    END IF;
+END;
+$$;
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

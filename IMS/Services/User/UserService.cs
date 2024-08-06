@@ -58,5 +58,9 @@ namespace IMS.Services.User
         {
             return await _userRepository.UpdateUserPreferences(userPreferences);
         }
+        public async Task<bool> UpdateCardAddedStatus()
+        {
+            return await _userRepository.UpdateCardAddedStatus();
+        }
     }
 }

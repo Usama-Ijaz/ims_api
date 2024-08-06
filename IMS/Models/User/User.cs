@@ -16,5 +16,9 @@
         public UserImage UserImage { get; set; }
         public string ProfileStatus { get; set; }
         public List<UserPreference> UserPreferences { get; set; }
+        public bool ProfileCompletionStatus { get; set; }
+        public bool OtpVerified { get; set; }
+        public bool CardDetailsEntered { get; set; }
+        public DateOnly Dob { get; set; }
     }
 }
